@@ -16,14 +16,13 @@ class FoxRSSSpider(scrapy.Spider):
             obj['title'] = elm.xpath('title/text()').extract()[0]
             obj['link'] = elm.xpath('link/text()').extract()
             obj['category'] = elm.xpath('category/text()').extract()
-            print obj['category'][]
 
             # remove non-ascii chars
             desc_raw = elm.xpath('description/text()').extract()
             obj['description'] = re.sub('<[^>]+>', '', desc_raw[0])
 
             yield obj
-            
+
             #_append('fox.feed.txt', obj)
 
 ''' spider for cnn rss feed '''
