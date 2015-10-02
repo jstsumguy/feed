@@ -1,5 +1,0 @@
-- Feed
-  - Utilizes the following technologies
-    - web scraping
-    - machine learning
-    - text summary algorithms
