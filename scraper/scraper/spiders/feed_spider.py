@@ -27,34 +27,34 @@ class FoxRSSSpider(scrapy.Spider):
             #_append('fox.feed.txt', obj)
 
 ''' spider for cnn rss feed '''
-class CNNRSSSpider(scrapy.Spider):
+# class CNNRSSSpider(scrapy.Spider):
 
-    name = 'cnn'
-    allowed_domains = ["rss.cnn.com"]
-    start_urls = config.CNN_FEED
+#     name = 'cnn'
+#     allowed_domains = ["rss.cnn.com"]
+#     start_urls = config.CNN_FEED
 
-    def parse(self, response):
-        pass
+#     def parse(self, response):
+#         pass
 
 ''' spider for bloomberg rss feed '''
-class BLBSpider(scrapy.Spider):
+# class BLBSpider(scrapy.Spider):
 
-    name = 'blb'
-    allowed_domains = ["rss.cnn.com"]
-    start_urls = config.CNN_FEED
+#     name = 'blb'
+#     allowed_domains = ["rss.cnn.com"]
+#     start_urls = config.CNN_FEED
 
-    def parse(self, response):
-        pass
+#     def parse(self, response):
+#         pass
 
 ''' spider for vice rss feed '''
-class VCESpider(scrapy.Spider):
+# class VCESpider(scrapy.Spider):
 
-    name = 'vice'
-    allowed_domains = ["rss.cnn.com"]
-    start_urls = config.CNN_FEED
+#     name = 'vice'
+#     allowed_domains = ["rss.cnn.com"]
+#     start_urls = config.CNN_FEED
 
-    def parse(self, response):
-        pass
+#     def parse(self, response):
+#         pass
 
 
 def _append(filename, item):
