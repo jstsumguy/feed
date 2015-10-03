@@ -15,7 +15,7 @@ SPIDER_MODULES = ['scraper.spiders']
 NEWSPIDER_MODULE = 'scraper.spiders'
 
 LOG_LEVEL = 'ERROR'
-LOG_ENABLED = False
+LOG_ENABLED = True
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
