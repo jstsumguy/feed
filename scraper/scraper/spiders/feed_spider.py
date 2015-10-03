@@ -7,10 +7,7 @@ import sys
 
 ''' Defines entry urls for spiders '''
 CNN_FEED = ['http://rss.cnn.com/rss/cnn_topstories.rss']
-FOX_FEED = ['http://feeds.foxnews.com/foxnews/most-popular']
-
-#  'http://feeds.foxnews.com/foxnews/latest', 'http://feeds.foxnews.com/foxnews/tech', 'http://feeds.foxnews.com/foxnews/national', 'http://feeds.foxnews.com/foxnews/world'
-
+FOX_FEED = ['http://feeds.foxnews.com/foxnews/latest']
 
 ''' Spider for fox rss feed '''
 class FoxRSSSpider(scrapy.Spider):
@@ -22,7 +19,6 @@ class FoxRSSSpider(scrapy.Spider):
     def parse(self, response):
 
         client = DBConnection()
-        failures = 0
         for elm in response.xpath("//item"):
             obj = {}
             obj['headline'] = elm.xpath('title/text()').extract()[0]
@@ -30,31 +26,32 @@ class FoxRSSSpider(scrapy.Spider):
             obj['post_date'] = datetime.now()
             obj['categories'] = elm.xpath('category/text()').extract()
             obj['raw'] = elm.xpath('/text()').extract()
+            obj['description'] = []
 
-            # remove non-ascii chars
-            desc_raw = elm.xpath('description/text()').extract()
-            obj['description'] = re.sub('<[^>]+>', '', desc_raw[0]) if (len(desc_raw) > 1) else desc_raw
-
-            print obj
             if not client.update_feed(obj):
-                failures += 1
-        print 'Failed: ' + str(failures)
-
+                print 'Could not sync with db'
+        client.disconnect()
 
 class DBConnection:
 
+    def __init__(self):
+        self.client = None
+
     def get_client(self):
         connection_str = 'mongodb://guest:password@ds063833.mongolab.com:63833/news-feed-scraper'
-        try:
-            client = MongoClient(connection_str)
-            return client
-        except Exception as ex:
-            print str(ex)
-            sys.exit("Could not establish connection")
+        if not self.client:
+            try:
+                self.client = MongoClient(connection_str)
+            except Exception as ex:
+                print str(ex)
+                sys.exit("Could not establish connection")
+        return self.client
+
+    def disconnect(self):
+        if self.client is not None:
+            self.client.close()
 
     def update_feed(self, data):
-
-        print 'data', data
 
         client = self.get_client()
         db = client['news-feed-scraper']
