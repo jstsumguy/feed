@@ -6,31 +6,33 @@ import re
 import sys
 
 ''' Defines entry urls for spiders '''
-CNN_FEED = ['http://rss.cnn.com/rss/cnn_topstories.rss']
-FOX_FEED = ['http://feeds.foxnews.com/foxnews/latest']
+RSS_FEEDS = ['http://feeds.foxnews.com/foxnews/latest', 'http://feeds.foxnews.com/foxnews/tech', 'http://feeds.foxnews.com/foxnews/entertainment', 'http://feeds.foxnews.com/foxnews/politics', 'http://feeds.foxnews.com/foxnews/world', 'http://feeds.foxnews.com/foxnews/science', 'http://feeds.foxnews.com/foxnews/most-popular']
+MAX_ROW_COUNT = 100
 
-''' Spider for fox rss feed '''
-class FoxRSSSpider(scrapy.Spider):
+''' Spider for rss feeds '''
+class RSSSpider(scrapy.Spider):
 
-    name = "fox"
+    name = "feed"
     allowed_domains = ["feeds.foxnews.com"]
-    start_urls = FOX_FEED
+    start_urls = RSS_FEEDS
 
+    def __init__(self, *args, **kwargs):
+        super(RSSSpider, self).__init__(*args, **kwargs)
+        self.connection = DBConnection()
+        self.connection.clear_feed()
+        
     def parse(self, response):
-
-        client = DBConnection()
         for elm in response.xpath("//item"):
             obj = {}
             obj['headline'] = elm.xpath('title/text()').extract()[0]
             obj['link_to'] = elm.xpath('link/text()').extract()
             obj['post_date'] = datetime.now()
             obj['categories'] = elm.xpath('category/text()').extract()
-            obj['raw'] = elm.xpath('/text()').extract()
-            obj['description'] = []
+            obj['description'] = elm.xpath('description/text()').extract()
 
-            if not client.update_feed(obj):
-                print 'Could not sync with db'
-        client.disconnect()
+            if not self.connection.update_feed(obj):
+                print 'Could not sync data with db'
+        self.connection.disconnect()
 
 class DBConnection:
 
@@ -51,6 +53,11 @@ class DBConnection:
         if self.client is not None:
             self.client.close()
 
+    def clear_feed(self):
+        client = self.get_client()
+        db = client['news-feed-scraper']
+        db.feed.remove(None)
+
     def update_feed(self, data):
 
         client = self.get_client()
@@ -60,13 +67,12 @@ class DBConnection:
                 "description": data['description'], 
                 "categories": data['categories'], 
                 "link_to": data['link_to'], 
-                "post_date": data['post_date'], 
-                "raw": data['raw'] }
+                "post_date": data['post_date']
+                }
         try:
-            feeds = db.feed
+            feeds = db.feed                
             feed_id = feeds.insert_one(feed).inserted_id
             return True
-
         except Exception as ex:
             print 'Mongodb Exception: ' + str(ex) + ' \n\n'
         return False
@@ -90,8 +96,6 @@ def _append(filename, item):
         except Exception as ex:
             pass
 
-if __name__ == '__main__':
-    main()
 
 
 
