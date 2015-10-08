@@ -40,7 +40,7 @@ class DBConnection:
         self.client = None
 
     def get_client(self):
-        connection_str = 'mongodb://guest:password@ds063833.mongolab.com:63833/news-feed-scraper'
+        connection_str = 'mongodb://<your_username>:<your_password>@your_database_uri'
         if not self.client:
             try:
                 self.client = MongoClient(connection_str)
